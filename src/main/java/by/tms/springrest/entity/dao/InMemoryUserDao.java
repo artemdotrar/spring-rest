@@ -1,4 +1,4 @@
-package by.tms.springrest.dao;
+package by.tms.springrest.entity.dao;
 
 import by.tms.springrest.entity.User;
 import org.springframework.stereotype.Repository;
@@ -51,8 +51,11 @@ public class InMemoryUserDao {
        return Optional.empty();
     }
 
-    public void delete(User user) {
-        users.remove(user);
+    public boolean delete(User user) {
+        if(users.remove(user)){
+            return true;
+        }
+        return false;
     }
 
     public Optional<User> deleteById(long id) {

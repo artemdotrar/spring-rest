@@ -1,10 +1,14 @@
 package by.tms.springrest.controller;
 
-import by.tms.springrest.dao.InMemoryUserDao;
+import by.tms.springrest.entity.dao.InMemoryUserDao;
 import by.tms.springrest.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,55 +20,65 @@ public class UserController {
     final private InMemoryUserDao inMemoryUserDao = new InMemoryUserDao();
 
     @GetMapping
-    public List<User> findAll() {
-        return inMemoryUserDao.findAll();
+    public ResponseEntity<List<User>> findAll() {
+        List<User> all = inMemoryUserDao.findAll();
+        if (all.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(all);
     }
 
     @PostMapping
-    public User save(@RequestBody User user) {
-        return inMemoryUserDao.save(user);
+    public ResponseEntity<?> save(@Valid @RequestBody User user) {
+        User save = inMemoryUserDao.save(user);
+        return new ResponseEntity<>(save, HttpStatus.CREATED);
     }
 
     @GetMapping("/username")
-    public User getByUsername(String username) {
+    public ResponseEntity<User> getByUsername(String username) {
         Optional<User> byUsername = inMemoryUserDao.getByUsername(username);
         if (byUsername.isPresent()) {
-            return byUsername.get();
+            return ResponseEntity.ok(byUsername.get());
         } else {
-            return null;
+            return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/id")
-    public User getById(long id) {
+    public ResponseEntity<User> getById(long id) {
         Optional<User> byId = inMemoryUserDao.getById(id);
         if (byId.isPresent()) {
-            return byId.get();
+            return ResponseEntity.ok(byId.get());
         } else {
-            return null;
+            return ResponseEntity.notFound().build();
         }
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
+    public ResponseEntity<User> update(@Valid @RequestBody User user) {
         Optional<User> updated = inMemoryUserDao.update(user);
         if (updated.isPresent()) {
-            return updated.get();
+            return ResponseEntity.ok(updated.get());
         }
-        return null;
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping
-    public void delete(@RequestBody User user) {
-        inMemoryUserDao.delete(user);
+    public ResponseEntity<User> delete(@Valid @RequestBody User user) {
+        if (inMemoryUserDao.delete(user)) {
+            return ResponseEntity.ok(user);
+
+        }
+        return ResponseEntity.notFound().build();
+
     }
 
     @DeleteMapping("/id")
-    public User deleteById(long id) {
+    public ResponseEntity<User> deleteById(long id) {
         Optional<User> user = inMemoryUserDao.deleteById(id);
         if (user.isPresent()) {
-            return user.get();
+            return ResponseEntity.ok(user.get());
         }
-        return null;
+        return ResponseEntity.notFound().build();
     }
 }
