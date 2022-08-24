@@ -17,7 +17,7 @@ import java.util.Optional;
 public class UserController {
 
     @Autowired
-    final private InMemoryUserDao inMemoryUserDao = new InMemoryUserDao();
+    private InMemoryUserDao inMemoryUserDao;
 
     @GetMapping
     public ResponseEntity<List<User>> findAll() {
